@@ -109,30 +109,6 @@ namespace LottoAnalyzer
             return inWhichDrawNumberWonArray;
         }
 
-        public static int[][] CreateCombinationsArray(IEnumerable<IEnumerable<int>> collection, int innerOutputArraySize)
-        {
-            int iteration = 0;
-            int[][] outputArray = new int[GetArrayLength(collection)][];
-
-            for (int i = 0; i < outputArray.Length; i++)
-            {
-                outputArray[i] = new int[innerOutputArraySize];
-            }
-
-            foreach (var subArray in collection)
-            {
-                int innerIteration = 0;
-                foreach (var item in subArray)
-                {
-                    outputArray[iteration][innerIteration] = item;
-                    innerIteration++;
-                }
-                iteration++;
-            }
-
-            return outputArray;
-        }
-
         public static int[][] CropArray(int[][] inputArray)
         {
             int[][] outputArray = new int[inputArray.Length][];
@@ -301,72 +277,6 @@ namespace LottoAnalyzer
             return outputArray;
         }
 
-        public static string[][] CreatePartialCombArray(int[][] inputArray)
-        {
-            string[][] outputArray = new string[inputArray.Length][];
-            for (int i = 0; i < outputArray.Length; i++)
-            {
-                outputArray[i] = new string[2];
-            }
-
-            for (int i = 0; i < inputArray.Length; i++)
-            {
-                string combination = "";
-
-                for (int j = 0; j < inputArray[i].Length; j++)
-                {
-                    if (j == (inputArray[i].Length - 1))
-                    {
-                        outputArray[i][1] = inputArray[i][j].ToString();
-                    }
-                    else
-                    {
-                        combination += $"{inputArray[i][j].ToString()} ";
-                    }
-                    outputArray[i][0] = combination;
-                }
-            }
-            return outputArray;
-        }
-
-        public static int[][] RemoveEvensOrOddsOnlyComb(int[][] inputArray)
-        {
-            int[][] outputArray = new int[inputArray.Length][];
-
-            for (int i = 0; i < outputArray.Length; i++)
-            {
-                int evens = 0;
-                int odds = 0;
-                if (inputArray[i] != null)
-                {
-                    foreach (var item in inputArray[i])
-                    {
-                        if (item % 2 == 0)
-                        {
-                            evens++;
-                        }
-
-                        else
-                        {
-                            odds++;
-                        }
-                    }
-
-                    if (evens == 6 || odds == 6)
-                    {
-                        outputArray[i] = null;
-                    }
-
-                    else
-                    {
-                        outputArray[i] = inputArray[i];
-                    }
-                }
-            }
-
-            return outputArray;
-        }
-
         internal int[][] BuildConsequentComb(int maxNumber, int innerArraySize)
         {
             int[][] numbersArray = new int[maxNumber - innerArraySize + 1][];
@@ -409,8 +319,5 @@ namespace LottoAnalyzer
 
             return arrayAsString;
         }
-        //TODO: Push out odds-only and evens-only combinations
-        //TODO: In Version 2 the data should be DB-based
-        //TODO: Working with one single file for all
     }
 }

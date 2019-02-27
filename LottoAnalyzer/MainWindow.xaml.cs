@@ -14,10 +14,6 @@ using static System.Windows.Visibility;
 
 namespace LottoAnalyzer
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-
     //=================================//
     //Prefix E marks enums
     //Names of CONSTANTS are written in CAPITALS
@@ -29,7 +25,7 @@ namespace LottoAnalyzer
         {
             InitializeComponent();
             inputTextBox.Text = FetchFileFromUrl();
-            FetchFileFromUrl();
+            //FetchFileFromUrl();
         }
 
         private string FetchFileFromUrl()   
@@ -58,19 +54,19 @@ namespace LottoAnalyzer
             return fileContent;
         }
 
-        private string GetFileContentAsString()
-        {
-            string fileContent = null;
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+        //private string GetFileContentAsString()
+        //{
+        //    string fileContent = null;
+        //    OpenFileDialog openFileDialog = new OpenFileDialog();
+        //    openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
 
-            if (openFileDialog.ShowDialog() == true)
-            {
-                fileContent = File.ReadAllText(openFileDialog.FileName);
-            }
+        //    if (openFileDialog.ShowDialog() == true)
+        //    {
+        //        fileContent = File.ReadAllText(openFileDialog.FileName);
+        //    }
 
-            return fileContent;
-        }
+        //    return fileContent;
+        //}
 
         private void DisplayFileContent()
         {
@@ -108,44 +104,7 @@ namespace LottoAnalyzer
             dataGridView.ItemsSource = new RatingCombiner(fileContent, maxNumber).GetView();
         }
 
-        private void CalculateAvgSpanButton_Click(object sender, RoutedEventArgs e)
-        {
-            PrepareGUIforTextBoxes();
-            DisplayFileContent();
-
-            string fileContent = FetchFileFromUrl();
-            int maxNumber = GetMaxNumber();
-
-            string lowerStepsLimitString = lowerStepsLimitTextBox.Text;
-            string upperStepsLimitString = upperStepsLimitTextBox.Text;
-
-            AvgSpanCombiner avgSpanCombiner = new AvgSpanCombiner(fileContent, maxNumber, lowerStepsLimitString, upperStepsLimitString);
-
-            int[][] jumpsArray = new int[maxNumber][];
-            double avg = 0;
-            int jump = 0;
-
-            int[][] drawsArray = avgSpanCombiner.GetDrawsIntArray();
-
-            for (int i = 0; i < drawsArray.Length; i++)
-            {
-                avg = 0;
-                jumpsArray[i] = new int[drawsArray[i].Length - 1];
-                outputTextBox.AppendText($"{i + 1} appears every:\n");
-
-                for (int j = 0; j < jumpsArray[i].Length; j++)
-                {
-                    jump = drawsArray[i][j] - drawsArray[i][j + 1];
-                    if (jump >= avgSpanCombiner.GetLowerStepsLimit() && jump <= avgSpanCombiner.GetUpperStepsLimit())
-                    {
-                        jumpsArray[i][j] = jump;
-                        avg = (avg + jumpsArray[i][j]);
-                        outputTextBox.AppendText($"{jumpsArray[i][j]} ");
-                    }
-                }
-                outputTextBox.AppendText($"\nAVG = {Math.Round(avg / (drawsArray[i].Length), 2)}\n\n");
-            }
-        }
+        
 
         private void ShowDrawsButton_Click(object sender, RoutedEventArgs e)
         {
@@ -197,7 +156,8 @@ namespace LottoAnalyzer
         private void CheckCombinationButton_Click(object sender, RoutedEventArgs e)
         {
             DisplayFileContent();
-            string[] drawsArray = CustomArray.SeparateToLines(GetFileContentAsString());
+            string fileContent = FetchFileFromUrl();
+            string[] drawsArray = CustomArray.SeparateToLines(fileContent);
 
             string sequenceToCheck = "";
             bool sequenceAlreadyWon = false;
@@ -309,172 +269,10 @@ namespace LottoAnalyzer
             return comboBoxValue;
         }
 
-        int HowManyDrawsConsider(int[][] drawsArray)
-        {
-            int howManyDrawsConsider = 0;
-
-            bool success = int.TryParse(HowManyDrawsTextBox.Text, out int parsedValue);
-
-            if (success)
-            {
-                howManyDrawsConsider = parsedValue;
-            }
-
-            else
-            {
-                howManyDrawsConsider = drawsArray.Length;
-                HowManyDrawsTextBox.Text = drawsArray.Length.ToString();
-            }
-
-            return howManyDrawsConsider;
-        }
-
-        private void CombineButton_Click(object sender, RoutedEventArgs e)
-        {
-            PrepareGUIforTextBoxes();
-
-            int combFilter = GetComboBoxValue(FilterComboBox.SelectedIndex);
-
-            //string fileContent = GetFileContentAsString();
-            string fileContent = FetchFileFromUrl();
-            inputTextBox.Text = fileContent;
-
-            int[] chosenNumbers = CustomArray.ParseStringArray(Regex.Split(chosenNumbersTextBox.Text, @"(?=\s)"));
-
-            // Combine numbers
-            var combinationsSix = chosenNumbers.Combinations(6);
-
-            // Build combinations of five, four, three numbers
-            var combinationsShort = chosenNumbers.Combinations(combFilter);
-
-            // Create temporary combinations array
-            int[][] tempCombinationsSixArrayInt = CustomArray.CreateCombinationsArray(combinationsSix, 6);
-
-            // Create control array of five, four, three numbers
-            int[][] tempControlArrayInt = CustomArray.CreateCombinationsArray(combinationsShort, combFilter);
-
-            // Create temp array of draws
-            //int[][] tempControlDrawsArray = CustomArray.CreateIntArrayFromString(fileContent);
-            int[][] controlDrawsArray = CustomArray.CropArray(CustomArray.CreateIntArrayFromString(fileContent));
-
-            // Create final array of draws
-            int howManyDrawsConsider = HowManyDrawsConsider(controlDrawsArray);
-
-            int[][] tempControlArray = CustomArray.CompareArrays(CustomArray.EPurpose.control, tempControlArrayInt, controlDrawsArray, tempControlArrayInt.Length, howManyDrawsConsider, combFilter);
-            //Filter array
-            int[][] finalControlArrayFiltered = CustomArray.ReduceArrayByPushingOutNulls(tempControlArray);
-
-            //Create temporary combinations array to be filtered
-            int[][] tempCombinationsArray = CustomArray.CompareArrays(tempCombinationsSixArrayInt, finalControlArrayFiltered, tempCombinationsSixArrayInt.Length, combFilter);
-
-            //Prepare final combinations array
-            int[][] finalCombinationsArrayFiltered;
-
-            if (EvensOddsCheckBox.IsChecked == true)
-            {
-                //Remove evens-only or odds-only combinations
-                int[][] combinationsArrayWithoutEvensOnlyOrOddsOnly = CustomArray.RemoveEvensOrOddsOnlyComb(tempCombinationsArray);
-                //Push out nulls
-                finalCombinationsArrayFiltered = CustomArray.ReduceArrayByPushingOutNulls(combinationsArrayWithoutEvensOnlyOrOddsOnly);
-            }
-
-            else
-            {
-                //Push out nulls
-                finalCombinationsArrayFiltered = CustomArray.ReduceArrayByPushingOutNulls(tempCombinationsArray);
-            }
-
-            //Display
-            for (int i = 0; i < finalCombinationsArrayFiltered.Length; i++)
-            {
-                string combination = "";
-                for (int j = 0; j < finalCombinationsArrayFiltered[i].Length; j++)
-                {
-                    combination += $"{finalCombinationsArrayFiltered[i][j].ToString()} ";
-                }
-
-                //For: 2 5 8 11 15 16 19 25 29 31 35 37
-                //And: 11 15 16 19 20 25 26 29 30 31 33
-                //And: 3 4 6 14 17 22 23 27 34 36
-                //And: 5 8 11 12 16 19 26 29 30 31 35
-                if (combination.Contains("29")
-                    //&& combination.Contains("12")
-                    //&& !combination.Contains("5 8")
-                    //&& !combination.Contains("8 25")
-                    && !combination.Contains("8 29")
-                    && !combination.Contains("8 31")
-                    && !combination.Contains("8 35")
-                    && !combination.Contains("8 37")
-                    //&& !combination.Contains("5 25")
-                    //&& !combination.Contains("5 29")
-                    && !combination.Contains("5 31")
-                    && !combination.Contains("5 35")
-                    && !combination.Contains("5 37")
-                    && !(combination.Contains("3 4") && !combination.Contains("22 23"))
-                && !(combination.Contains("12") && combination.Contains("30"))
-                //&& !(combination.Contains("2 3") && combination.Contains("27 28"))
-                //&& !(combination.Contains("2 3") && combination.Contains("28 29"))
-                //&& !(combination.Contains("2 3") && combination.Contains("29 30"))
-                && !(combination.Contains("29") && combination.Contains("30") && combination.Contains("31"))
-                //&& !(combination.Contains("28") && combination.Contains("29") && combination.Contains("30"))
-                //&& !(combination.Contains("3") && combination.Contains("24") && combination.Contains("25"))
-                //&& !(combination.Contains("9") && combination.Contains("24") && combination.Contains("25"))
-
-                //&& !(combination.LastIndexOf("18") == 12)
-                //&& !(combination.LastIndexOf("18") == 13)
-                //&& !(combination.LastIndexOf("18") == 14)
-                )
-                {
-                    outputTextBox.AppendText($"{combination}\n");
-                }
-            }
-        }
-
-        private void ClearCombinationsButton_Click(object sender, RoutedEventArgs e)
-        {
-            outputTextBox.Clear();
-            chosenNumbersTextBox.Clear();
-        }
-
-        private void PartialCombinationsButton_Click(object sender, RoutedEventArgs e)
-        {
-            PrepareGUIforTableView();
-
-            int combFilter = GetComboBoxValue(FilterComboBox.SelectedIndex);
-
-            string fileContent = FetchFileFromUrl();
-            inputTextBox.Text = fileContent;
-
-            int[] chosenNumbers = CustomArray.ParseStringArray(Regex.Split(chosenNumbersTextBox.Text, @"(?=\s)"));
-
-            // Build combinations of five, four, three numbers
-            var combinationsFive = chosenNumbers.Combinations(combFilter);
-
-            // Create control array of five
-            int[][] tempControlArrayInt = CustomArray.CreateCombinationsArray(combinationsFive, combFilter);
-
-            // Create final array of five
-            int[][] controlDrawsArray = CustomArray.CropArray(CustomArray.CreateIntArrayFromString(fileContent));
-
-            int howManyDrawsConsider = HowManyDrawsConsider(controlDrawsArray);
-            //Compare
-            int[][] tempControlArray = CustomArray.CompareArrays(CustomArray.EPurpose.statistics, tempControlArrayInt, controlDrawsArray, tempControlArrayInt.Length, howManyDrawsConsider, combFilter);
-
-            //Filter array
-            int[][] finalControlArrayFiltered = CustomArray.ReduceArrayByPushingOutNulls(tempControlArray);
-
-            //Create string array to be displayed via TableView
-            string[][] partialCombArray = CustomArray.CreatePartialCombArray(finalControlArrayFiltered);
-
-            //Display
-            DataView view = new DataView(Tables.PopulateDataTable(partialCombArray, Tables.ETableType.partial, new string[] { "Combination", "Count" }));
-            view.Sort = "Combination ASC";
-            dataGridView.ItemsSource = view;
-        }
-
         private void CheckConsequentCombinationsButton_Click(object sender, RoutedEventArgs e)
         {
             PrepareGUIforTextBoxes();
+            drawLabel.Visibility = Hidden;
 
             string fileContent = FetchFileFromUrl();
             CombCombiner combCombiner = new CombCombiner(GetMaxNumber(), GetComboBoxValue(ConsequentComboBox.SelectedIndex), fileContent);

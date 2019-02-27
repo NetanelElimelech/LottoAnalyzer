@@ -9,10 +9,10 @@
             <Setter Property="TextBlock.TextAlignment" Value="Center" />
             <Setter Property="TextBlock.FontWeight" Value="Regular" />
             <Setter Property="TextBlock.FontSize" Value="15" />
-            <Setter Property="Template">
+                <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" CornerRadius="3,3,3,3" Background="#FF64C8AA" BorderBrush="#ccc" BorderThickness="0,0,0,0" >
+                        <Border x:Name="border" CornerRadius="3,3,3,3" Background="#FF64C8AF" BorderBrush="#ccc" BorderThickness="0,0,0,0" >
                             <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Border>
                         <ControlTemplate.Triggers>
