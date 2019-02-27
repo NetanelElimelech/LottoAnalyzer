@@ -25,7 +25,6 @@ namespace LottoAnalyzer
         {
             InitializeComponent();
             inputTextBox.Text = FetchFileFromUrl();
-            //FetchFileFromUrl();
         }
 
         private string FetchFileFromUrl()   
@@ -53,20 +52,6 @@ namespace LottoAnalyzer
 
             return fileContent;
         }
-
-        //private string GetFileContentAsString()
-        //{
-        //    string fileContent = null;
-        //    OpenFileDialog openFileDialog = new OpenFileDialog();
-        //    openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
-
-        //    if (openFileDialog.ShowDialog() == true)
-        //    {
-        //        fileContent = File.ReadAllText(openFileDialog.FileName);
-        //    }
-
-        //    return fileContent;
-        //}
 
         private void DisplayFileContent()
         {

@@ -9,7 +9,7 @@ namespace LottoAnalyzer
 {
     class Tables
     {
-        public enum ETableType { rate, lastAppearance, partial }
+        public enum ETableType { rate, lastAppearance }
         public static int allNumbersCount = 0;
 
         public static DataTable CreateTable(ETableType tableType, string[] columnNames)
@@ -19,14 +19,7 @@ namespace LottoAnalyzer
             DataColumn column;
 
             column = new DataColumn();
-            if (tableType == ETableType.partial)
-            {
-                column.DataType = Type.GetType("System.String");
-            }
-            else
-            {
-                column.DataType = Type.GetType("System.Int32");
-            }
+            column.DataType = Type.GetType("System.Int32");
             column.ColumnName = columnNames[0];
             table.Columns.Add(column);
 

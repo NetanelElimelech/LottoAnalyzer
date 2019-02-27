@@ -18,8 +18,6 @@ namespace LottoAnalyzer
             return view;
         }
 
-        public enum EPurpose { control, statistics }
-
         public static int[][] CreateIntArrayFromString(string fileContent)
         {
             string[] stringArray = SeparateToLines(fileContent);
@@ -178,56 +176,7 @@ namespace LottoAnalyzer
             return outputArray;
         }
 
-        public static int[][] CompareArrays(int[][] outerLoopArray, int[][] innerLoopArray, int outputArraySize, int combFilter)
-        {
-            int[][] outputArray = new int[outputArraySize][];
-
-            for (int i = 0; i < outputArray.Length; i++)
-            {
-                outputArray[i] = new int[outerLoopArray[i].Length];
-            }
-
-            if (innerLoopArray.Length == 0)
-            {
-                for (int i = 0; i < outputArray.Length; i++)
-                {
-                    outputArray[i] = outerLoopArray[i];
-                }
-            }
-
-            else
-            {
-                for (int i = 0; i < outerLoopArray.Length; i++)
-                {
-                    for (int j = 0; j < innerLoopArray.Length; j++)
-                    {
-                        int test = 0;
-
-                        foreach (int item in innerLoopArray[j])
-                        {
-                            if (Array.Exists(outerLoopArray[i], control => control == item))
-                            {
-                                test++;
-                            }
-                        }
-                        if (test == combFilter)
-                        {
-                            outputArray[i] = null;
-                            break;
-                        }
-
-                        else
-                        {
-                            outputArray[i] = outerLoopArray[i];
-                        }
-                    }
-                }
-            }
-
-            return outputArray;
-        }
-
-        public static int[][] CompareArrays(EPurpose purpose, int[][] outerLoopArray, int[][] innerLoopArray, int outputArraySize, int breakhere, int combFilter)
+        public static int[][] CompareArrays(int[][] outerLoopArray, int[][] innerLoopArray, int outputArraySize, int breakhere, int combFilter)
         {
             int[][] outputArray = new int[outputArraySize][];
 
@@ -255,20 +204,11 @@ namespace LottoAnalyzer
 
                             if (test == combFilter)
                             {
-                                if (purpose == EPurpose.control)
+                                for (int k = 0; k < combFilter; k++)
                                 {
-                                    outputArray[i] = outerLoopArray[i];
-                                    break;
+                                    outputArray[i][k] = outerLoopArray[i][k];
                                 }
-
-                                else if (purpose == EPurpose.statistics)
-                                {
-                                    for (int k = 0; k < combFilter; k++)
-                                    {
-                                        outputArray[i][k] = outerLoopArray[i][k];
-                                    }
-                                    outputArray[i][outputArray[i].Length - 1]++;
-                                }
+                                outputArray[i][outputArray[i].Length - 1]++;
                             }
                         }
                     }
